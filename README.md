@@ -9,7 +9,7 @@ HomeController can manage smart devices built with the [libhomecontroller](https
 Make sure you have G++, Clang, Node.js, npm, and npx installed.
 
 ```sh
-git clone https://github.com/DisgustingBungHole94/HomeController_server.git
+git clone https://github.com/DisgustingBungHole94/HomeController_server.git --recursive
 
 cd HomeController_server && make
 ```
