@@ -1,11 +1,16 @@
 # HomeController Server
 
+## What is HomeController?
+
+HomeController can manage smart devices built with the [libhomecontroller](https://github.com/DisgustingBungHole94/libhomecontroller) library.
+
 ## Build Instructions
 
 Make sure you have G++, Clang, Node.js, npm, and npx installed.
 
 ```sh
-make
+git clone https://github.com/DisgustingBungHole94/HomeController_server.git
+cd HomeController_server && make
 ```
 
 This will automatically compile all dependencies as well.
