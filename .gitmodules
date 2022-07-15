@@ -1,0 +1,9 @@
+[submodule "websocketpp"]
+	path = websocketpp
+	url = https://github.com/zaphoyd/websocketpp
+[submodule "llhttp"]
+	path = llhttp
+	url = https://github.com/nodejs/llhttp
+[submodule "rapidjson"]
+	path = rapidjson
+	url = https://github.com/Tencent/rapidjson
