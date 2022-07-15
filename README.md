@@ -10,6 +10,7 @@ Make sure you have G++, Clang, Node.js, npm, and npx installed.
 
 ```sh
 git clone https://github.com/DisgustingBungHole94/HomeController_server.git
+
 cd HomeController_server && make
 ```
 
