@@ -4,7 +4,6 @@ STRUCTURE = $(shell find $(SRCDIR) -type d)
 DEPSDIR = thirdparty
 
 INCLUDES += -I$(DEPSDIR)/websocketpp/
-INCLUDES += -I$(DEPSDIR)/rapidjson/include/
 
 CXX ?= g++
 CXXFLAGS ?= -g $(INCLUDES)

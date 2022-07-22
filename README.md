@@ -6,7 +6,7 @@ HomeController can manage smart devices built with the [libhomecontroller](https
 
 ## Build Instructions
 
-You must install [llhttp](https://github.com/nodejs/llhttp) to build HomeController.
+You must install [llhttp](https://github.com/nodejs/llhttp) and [RapidJSON](https://github.com/Tencent/rapidjson) to build HomeController.
 
 ```sh
 git clone https://github.com/DisgustingBungHole94/HomeController_server.git --recursive
