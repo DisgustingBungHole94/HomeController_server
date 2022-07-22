@@ -6,15 +6,12 @@ HomeController can manage smart devices built with the [libhomecontroller](https
 
 ## Build Instructions
 
-Make sure you have G++, Clang, Node.js, npm, and npx installed.
+You must install [llhttp](https://github.com/nodejs/llhttp) to build HomeController.
 
 ```sh
 git clone https://github.com/DisgustingBungHole94/HomeController_server.git --recursive
-
 cd HomeController_server && make
 ```
-
-This will automatically compile all dependencies as well.
 
 ## Certificates
 
