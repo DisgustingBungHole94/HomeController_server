@@ -1,7 +1,6 @@
 #include "homecontroller.h"
 
 #include <thread>
-#include <fcntl.h>
 
 #include "util/exception/general_exception.h"
 #include "util/string.h"
@@ -111,4 +110,18 @@ void HomeController::shutdown() {
     m_wsServer.stop();
 
     m_deviceServer.stop();
+}
+
+void HomeController::signalInterrupt(int s) {
+    m_logger.dbg("Received interrupt from user.");
+    shutdown();
+}
+
+void HomeController::signalPipe(int s) {
+    m_logger.err("Received signal SIGPIPE!");
+}
+
+void HomeController::signalSegv(int s) {
+    m_logger.csh("*** SEGMENTATION FAULT! ***");
+    exit(-1);
 }

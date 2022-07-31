@@ -32,6 +32,8 @@ TLSClient::TLSClient(int clientSocket, std::string ip, tls::UniquePtr<SSL> ssl)
 TLSClient::~TLSClient() {}
 
 std::string TLSClient::recv() {
+    if (m_clientFinished) throw GeneralException("Socket is closed!", "TLSClient::send");
+
     const unsigned int MAX_BUF_LEN = 4096;
     std::vector<unsigned char> buf(MAX_BUF_LEN);
 
@@ -40,7 +42,7 @@ std::string TLSClient::recv() {
     int numBytes = 0;
     do {
         numBytes = SSL_read(m_ssl.get(), &buf[0], buf.size());
-        
+
         int res = SSL_get_error(m_ssl.get(), numBytes);
         if (res == SSL_ERROR_WANT_READ) {
             throw SocketTimeoutException();
@@ -61,6 +63,8 @@ std::string TLSClient::recv() {
 }
 
 void TLSClient::send(std::string data) {
+    if (m_clientFinished) throw GeneralException("Socket is closed!", "TLSClient::send");
+
     if (SSL_write(m_ssl.get(), data.c_str(), data.length()) < 0) {
         throw GeneralException("Failed to send bytes.", "TLSClient::send");
     }

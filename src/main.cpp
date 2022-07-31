@@ -11,7 +11,15 @@ int main() {
     std::cout << "Current working directory: " << std::string(cwdBuf) << std::endl;
 
     std::signal(SIGINT, [](int s) {
-        controller.shutdown();
+        controller.signalInterrupt(s);
+    });
+
+    std::signal(SIGPIPE, [](int s) {
+        controller.signalPipe(s);
+    });
+
+    std::signal(SIGSEGV, [](int s) {
+        controller.signalSegv(s);
     });
 
     if (!controller.start()) {

@@ -51,6 +51,10 @@ class HomeController {
 
         WebSocketServer* getWSServer() { return &m_wsServer; }
         DeviceServer* getDeviceServer() { return &m_deviceServer; }
+        
+        void signalInterrupt(int s);
+        void signalPipe(int s);
+        void signalSegv(int s);
 
     private:
         Logger m_logger;

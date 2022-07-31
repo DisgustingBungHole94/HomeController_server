@@ -46,6 +46,8 @@ void WebSocketSession::run() {
         }
     }
 
+    std::lock_guard<std::mutex> lock(m_mutex);
+
     while(m_connectionPtr->get_state() == websocketpp::session::state::closing);
     m_tlsClient->stop();
 
@@ -54,15 +56,16 @@ void WebSocketSession::run() {
 
 void WebSocketSession::stop() {
     if (m_running) {
-        try {
-            m_serverPtr->close(m_connectionPtr->get_handle(), websocketpp::close::status::going_away, "");
-        } catch(std::exception& e) {
-            m_logger.err("Failed to close session: " + std::string(e.what()));
-        }
+       close(m_connectionPtr->get_handle(), "server closed");
     }
 }
 
 std::error_code WebSocketSession::onVectorWrite(websocketpp::connection_hdl hdl, std::vector<websocketpp::transport::buffer> const& bufs) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_running) {
+        return std::make_error_code(std::errc::connection_aborted);
+    }
+
     std::string data;
     
     for (int i = 0; i < bufs.size(); i++) {
@@ -82,6 +85,11 @@ std::error_code WebSocketSession::onVectorWrite(websocketpp::connection_hdl hdl,
 }
 
 std::error_code WebSocketSession::onWrite(websocketpp::connection_hdl hdl, const char* data, std::size_t len) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_running) {
+        return std::make_error_code(std::errc::connection_aborted);
+    }
+
     try {
         m_tlsClient->send(std::string(data, len));
     } catch(GeneralException& e) {
@@ -128,7 +136,7 @@ void WebSocketSession::onMessage(websocketpp::connection_hdl hdl, ws::server::me
 
         response.push_back(resultByte);
         sendMessage(hdl, response);
-
+        
         if (resultByte != 0x00) {
             close(hdl, "handshake failed");
         } else {
