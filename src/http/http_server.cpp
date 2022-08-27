@@ -28,7 +28,7 @@ void HTTPServer::run() {
             client->setTimeout(5);
 
             m_threadPool.addJob(std::make_unique<HTTPSession>(m_controller, std::move(client)));
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
         }
     }

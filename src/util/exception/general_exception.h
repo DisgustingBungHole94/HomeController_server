@@ -2,17 +2,17 @@
 
 #include <string>
 
-class GeneralException {
+class hc::exception {
     public:
-        GeneralException() 
-            : GeneralException("", "")
+        hc::exception() 
+            : hc::exception("", "")
         {}
 
-        GeneralException(std::string err, std::string func)
+        hc::exception(std::string err, std::string func)
             : m_err(err), m_func(func)
         {}
 
-        ~GeneralException() {}
+        ~hc::exception() {}
 
         std::string what() { return m_err; }
         std::string func() { return m_func; }

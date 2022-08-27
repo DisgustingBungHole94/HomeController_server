@@ -11,7 +11,7 @@ Config::~Config() {}
 void Config::load(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        throw GeneralException("Failed to open file " + path + ".", "Config::load");
+        throw hc::exception("Failed to open file " + path + ".", "Config::load");
     }
 
     int lineNum = 0;
@@ -24,7 +24,7 @@ void Config::load(const std::string& path) {
 
         std::vector<std::string> splitLine = Util::splitString(line, ' ');
         if (splitLine.size() < 2) {
-            throw GeneralException("Variable not defined: " + splitLine[0] + " (" + std::to_string(lineNum) + ")", "Config::load");
+            throw hc::exception("Variable not defined: " + splitLine[0] + " (" + std::to_string(lineNum) + ")", "Config::load");
         }
 
         ConfigValue val(splitLine[0]);
@@ -38,7 +38,7 @@ void Config::load(const std::string& path) {
             val.setString(splitLine[1]);
         }
         catch (std::out_of_range const& e) {
-            throw GeneralException("Variable integer out of range: " + splitLine[0] + " (" + std::to_string(lineNum) + ")", "Config::load");
+            throw hc::exception("Variable integer out of range: " + splitLine[0] + " (" + std::to_string(lineNum) + ")", "Config::load");
         }
 
         m_vars.insert(std::make_pair(splitLine[0], val));
@@ -48,7 +48,7 @@ void Config::load(const std::string& path) {
 ConfigValue& Config::operator[](const std::string& var) {
     auto mit = m_vars.find(var);
     if (mit == m_vars.end()) {
-        throw GeneralException("Variable not defined: " + var, "ConfigValue::operator[]");
+        throw hc::exception("Variable not defined: " + var, "ConfigValue::operator[]");
     }
 
     return mit->second;

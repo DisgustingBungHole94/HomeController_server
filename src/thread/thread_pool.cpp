@@ -19,7 +19,7 @@ ThreadPool<JobType>::~ThreadPool() {}
 template <class JobType>
 void ThreadPool<JobType>::start(int numThreads) {
     if (numThreads <= 0) {
-        throw GeneralException("Invalid number of threads.", "HTTPThreadPool::start");
+        throw hc::exception("Invalid number of threads.", "HTTPThreadPool::start");
     }
 
     m_threads.resize(numThreads);

@@ -4,7 +4,7 @@
 
 class Timer {
     public:
-        Timer(std::chrono::milliseconds duration);
+        Timer(int duration);
         ~Timer();
 
         void reset();

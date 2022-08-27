@@ -11,7 +11,7 @@ HTTPResponse LogoutModule::execute(const std::string& method, const std::vector<
             if (!m_controller->getAuthManager()->deleteSession(getSession()->getId())) {
                 return HTTPResponse("400 Bad Request", "{\"success\":false,\"error_code\":-65000,\"error_msg\":\"bad session token\"}");
             }
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             return HTTPResponse("500 Internal Server Error", "{\"success\":false,\"error_code\":-70000,\"error_msg\":\"server error\"}");
         }
 

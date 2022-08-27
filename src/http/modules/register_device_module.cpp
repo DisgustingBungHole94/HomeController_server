@@ -1,27 +1,28 @@
 #include "register_device_module.h"
 
 #include "../../util/string.h"
+#include "../../util/json.h"
 
 RegisterDeviceModule::RegisterDeviceModule() {}
 RegisterDeviceModule::~RegisterDeviceModule() {}
 
 HTTPResponse RegisterDeviceModule::execute(const std::string& method, const std::vector<std::string>& path, const rapidjson::Document& jsonDoc) {
     if (Util::toLowerCase(method) == "post") {
-        if (! (jsonDoc.HasMember("device_name") && jsonDoc["device_name"].IsString()
-            && jsonDoc.HasMember("device_type") && jsonDoc["device_type"].IsString()))
+        std::string deviceName;
+        std::string deviceType;
+
+        if (!Util::findJSONValue(jsonDoc, "device_name", deviceName) ||
+            !Util::findJSONValue(jsonDoc, "device_type", deviceType))
         {
             return HTTPResponse("400 Bad Request", "{\"success\":false,\"error_code\":-35000,\"error_msg\":\"missing required value or wrong type\"}");
         }
-
-        std::string deviceName = jsonDoc["device_name"].GetString();
-        std::string deviceType = jsonDoc["device_type"].GetString();
 
         Device device;
 
         try {
             device = m_controller->getDeviceManager()->registerDevice(deviceName, deviceType);
             getSession()->getUser()->addDevice(device);
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             return HTTPResponse("500 Internal Server Error", "{\"success\":false,\"error_code\":-70000,\"error_msg\":\"server error\"}");
         }
 

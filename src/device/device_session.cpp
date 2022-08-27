@@ -1,10 +1,9 @@
 #include "device_session.h"
 
-#include "../util/exception/general_exception.h"
-//#include "../util/string.h"
 #include "../util/timer.h"
-
 #include "../homecontroller.h"
+
+#include <homecontroller/exception/exception.h>
 
 DeviceSession::DeviceSession(HomeController* controller, std::unique_ptr<TLSClient> tlsClient) 
     : m_logger("DS@" + tlsClient->getIp()), m_controller(controller), m_tlsClient(std::move(tlsClient)), m_running(false), m_registered(false)
@@ -29,11 +28,11 @@ void DeviceSession::run() {
         } else {
             m_logger.err("Device handshake failed: " + std::to_string(res));
         }
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         m_logger.err("Device handshake failed: " + e.what());
     }
 
-    Timer timer(std::chrono::milliseconds(3000));
+    Timer timer(3000);
     while(m_running) {
         if(!timer.isFinished()) continue;
 
@@ -46,7 +45,7 @@ void DeviceSession::run() {
         try {
             m_tlsClient->send(ping);
             pong = m_tlsClient->recv();
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             m_running = false;
             m_logger.dbg("Failed to ping device: " + e.what());
             continue;
@@ -67,7 +66,7 @@ void DeviceSession::run() {
         try {
             getDevice()->disconnect();
             m_logger.log("Device [" + getDevice()->getName() + "] disconnected.");
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             m_logger.err("Failed to disconnect device: " + e.what());
         }
     }
@@ -76,7 +75,7 @@ void DeviceSession::run() {
 void DeviceSession::stop() {
     try {
         m_tlsClient->send(std::to_string(0xFF));
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         m_logger.err("Failed to send going away message: " + e.what());
     }
 
@@ -91,7 +90,7 @@ std::string DeviceSession::sendMessage(const std::string& msg) {
     try {
         m_tlsClient->send(msg);
         response = m_tlsClient->recv();
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         if (m_running) {
             m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
 
@@ -138,7 +137,7 @@ uint8_t DeviceSession::registerDevice(const std::string& msg) {
 
 DevicePtr DeviceSession::getDevice() {
     if (m_device.expired()) {
-        throw GeneralException("Device deleted.", "DeviceSession::getDevice");
+        throw hc::exception("Device deleted.", "DeviceSession::getDevice");
     }
 
     return m_device.lock();

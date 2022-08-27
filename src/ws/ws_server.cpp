@@ -18,7 +18,7 @@ void WebSocketServer::init(HomeController* controller, int maxConnections) {
         m_server.clear_access_channels(websocketpp::log::alevel::frame_payload);
         m_server.set_error_channels(websocketpp::log::elevel::none);
     } catch(std::exception& e) {
-        throw GeneralException("Failed to initialize WebSocket server: " + std::string(e.what()), "WSSServer::init");
+        throw hc::exception("Failed to initialize WebSocket server: " + std::string(e.what()), "WSSServer::init");
     }
 
     m_logger.log("WebSocket server intialized.");
@@ -33,7 +33,7 @@ void WebSocketServer::startSession(std::unique_ptr<TLSClient> tlsClient, std::st
 
         m_threadPool.addJob(std::move(client));
     } catch(std::exception& e) {
-        throw GeneralException("Failed to initialize connection.", "WSSServer::addConnection");
+        throw hc::exception("Failed to initialize connection.", "WSSServer::addConnection");
     }
 }
 

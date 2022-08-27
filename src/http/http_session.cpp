@@ -20,7 +20,7 @@ HTTPSession::~HTTPSession() {}
 void HTTPSession::run() {
     try {
         parseRequest();
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         if (!m_sessionFinished) {
             m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
         }

@@ -32,7 +32,7 @@ TLSClient::TLSClient(int clientSocket, std::string ip, tls::UniquePtr<SSL> ssl)
 TLSClient::~TLSClient() {}
 
 std::string TLSClient::recv() {
-    if (m_clientFinished) throw GeneralException("Socket is closed!", "TLSClient::send");
+    if (m_clientFinished) throw hc::exception("Socket is closed!", "TLSClient::send");
 
     const unsigned int MAX_BUF_LEN = 4096;
     std::vector<unsigned char> buf(MAX_BUF_LEN);
@@ -50,7 +50,7 @@ std::string TLSClient::recv() {
 
         if (numBytes < 0) {
             m_clientFinished = true;
-            throw GeneralException("Failed to receive bytes.", "TLSClient::recv");
+            throw hc::exception("Failed to receive bytes.", "TLSClient::recv");
         } else if (numBytes == 0) {
             throw SocketCloseException();
         }
@@ -63,10 +63,10 @@ std::string TLSClient::recv() {
 }
 
 void TLSClient::send(std::string data) {
-    if (m_clientFinished) throw GeneralException("Socket is closed!", "TLSClient::send");
+    if (m_clientFinished) throw hc::exception("Socket is closed!", "TLSClient::send");
 
     if (SSL_write(m_ssl.get(), data.c_str(), data.length()) < 0) {
-        throw GeneralException("Failed to send bytes.", "TLSClient::send");
+        throw hc::exception("Failed to send bytes.", "TLSClient::send");
     }
 }
 
@@ -99,17 +99,17 @@ void TLSServer::init(int port, const std::string& certFile, const std::string& p
 
     if (SSL_CTX_use_certificate_file(m_sslContext.get(), certFile.c_str(), SSL_FILETYPE_PEM) <= 0) {
         m_logger.err("OpenSSL error: " + tls::getSSLErrors());
-        throw GeneralException("Failed to load server certificate file.", "TLSServer::init");
+        throw hc::exception("Failed to load server certificate file.", "TLSServer::init");
     }
 
     if (SSL_CTX_use_PrivateKey_file(m_sslContext.get(), privKeyFile.c_str(), SSL_FILETYPE_PEM) <= 0) {
         m_logger.err("OpenSSL error: " + tls::getSSLErrors());
-        throw GeneralException("Failed to load server private key file.", "TLSServer::init");
+        throw hc::exception("Failed to load server private key file.", "TLSServer::init");
     }
 
     m_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_serverSocket < 0) {
-        throw GeneralException("Failed to create TCP socket.", "TLSServer::init");
+        throw hc::exception("Failed to create TCP socket.", "TLSServer::init");
     }
 
     const int reuseAddr = 1;
@@ -125,7 +125,7 @@ void TLSServer::init(int port, const std::string& certFile, const std::string& p
     servAddr.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(m_serverSocket, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
-        throw GeneralException("Failed to bind TCP socket, is the port already being used?", "TLSServer::init");
+        throw hc::exception("Failed to bind TCP socket, is the port already being used?", "TLSServer::init");
     }
 
     listen(m_serverSocket, 5);
@@ -145,7 +145,7 @@ std::unique_ptr<TLSClient> TLSServer::accept() {
     if (m_running == false) {
         return nullptr;
     } else if (clientSocket < 0) {
-        throw GeneralException("Failed to establish connection.", "TLSServer::acceptClient");
+        throw hc::exception("Failed to establish connection.", "TLSServer::acceptClient");
     }
 
     struct sockaddr_in* clientAddrPtr = (struct sockaddr_in*)&clientAddr;

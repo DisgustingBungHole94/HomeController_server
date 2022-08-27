@@ -31,7 +31,7 @@ namespace tls {
             explicit StringBIO() {
                 m_methods.reset(BIO_meth_new(BIO_TYPE_SOURCE_SINK, "StringBIO"));
                 if (m_methods == nullptr) {
-                    throw GeneralException("Failed to create methods for StringBIO", "StringBIO::StringBIO");
+                    throw hc::exception("Failed to create methods for StringBIO", "StringBIO::StringBIO");
                 }
 
                 BIO_meth_set_write(m_methods.get(), [](BIO* bio, const char* data, int len) -> int {
@@ -42,7 +42,7 @@ namespace tls {
 
                 m_bio.reset(BIO_new(m_methods.get()));
                 if (m_bio == nullptr) {
-                    throw GeneralException("Failed to create BIO for StringBIO", "StringBIO::StringBIO");
+                    throw hc::exception("Failed to create BIO for StringBIO", "StringBIO::StringBIO");
                 }
 
                 BIO_set_data(m_bio.get(), &m_str);

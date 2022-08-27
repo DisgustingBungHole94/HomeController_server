@@ -5,7 +5,7 @@
 #include "modules/register_device_module.h"
 #include "modules/device_module.h"
 
-std::unique_ptr<Logger> HTTPModuleManager::_logger = std::make_unique<Logger>("HTTPModuleManager");
+Logger HTTPModuleManager::_logger = Logger("HTTPModuleManager");
 
 std::map<std::string, ModuleInfo> HTTPModuleManager::_modules;
 
@@ -38,7 +38,7 @@ void HTTPModuleManager::init() {
 
     ////
 
-    _logger->log("Loaded HTTP modules: ", false);
+    _logger.log("Loaded HTTP modules: ", false);
     for(auto& x : _modules) {
         std::cout << x.first << " ";
     }

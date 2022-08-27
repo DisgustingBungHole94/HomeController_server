@@ -6,13 +6,13 @@
 
 #include <map>
 #include <string>
-#include <memory>
 #include <functional>
+#include <memory>
 
 class HomeController;
 
 struct ModuleInfo {
-    ModuleInfo(std::function<Module*()> constructor, std::string allowedMethods, bool authRequired)
+    ModuleInfo(std::function<Module*()> constructor, const std::string& allowedMethods, bool authRequired)
         : m_constructor(constructor), m_allowedMethods(allowedMethods), m_authRequired(authRequired)
     {}
 
@@ -27,7 +27,7 @@ class HTTPModuleManager {
         static void init();
         static std::unique_ptr<Module> getModule(const std::string& name);
     private:
-        static std::unique_ptr<Logger> _logger;
+        static Logger _logger;
 
         static std::map<std::string, ModuleInfo> _modules;
 };

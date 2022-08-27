@@ -1,20 +1,21 @@
 #include "login_module.h"
 
 #include "../../util/string.h"
+#include "../../util/json.h"
 
 LoginModule::LoginModule() {}
 LoginModule::~LoginModule() {}
 
 HTTPResponse LoginModule::execute(const std::string& method, const std::vector<std::string>& path, const rapidjson::Document& jsonDoc) {
     if (Util::toLowerCase(method) == "post") {
-        if (! (jsonDoc.HasMember("username") && jsonDoc["username"].IsString()
-            && jsonDoc.HasMember("password") && jsonDoc["password"].IsString()))
+        std::string username;
+        std::string password;
+
+        if (!Util::findJSONValue(jsonDoc, "username", username) ||
+            !Util::findJSONValue(jsonDoc, "password", password))
         {
             return HTTPResponse("400 Bad Request", "{\"success\":false,\"error_code\":-35000,\"error_msg\":\"missing required value or wrong type\"}");
         }
-
-        std::string username = jsonDoc["username"].GetString();
-        std::string password = jsonDoc["password"].GetString();
 
         std::string sessionId;
         AuthManager::Error err = m_controller->getAuthManager()->createSession(sessionId, username, password, m_ip);

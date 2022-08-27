@@ -1,74 +1,62 @@
 #pragma once
 
+#include "app/session.h"
+
+#include <homecontroller/util/logger.h>
+#include <homecontroller/net/ssl/tls_server.h>
+#include <homecontroller/exception/exception.h>
+#include <homecontroller/thread/thread_pool.h>
+
 #include <iostream>
 #include <memory>
 #include <mutex>
 
-#include "app/auth_manager.h"
-#include "app/user_manager.h"
-
-#include "app/device_manager.h"
-
-#include "http/http_server.h"
-#include "ws/ws_server.h"
-#include "device/device_server.h"
-
-#include "util/logger.h"
-
-class Program;
-
-enum class HomeControllerStatus {
+enum class homecontroller_status {
     RUNNING, STOPPED
 };
 
-struct HomeControllerConfig {
-    int m_serverPort;
-    std::string m_tlsCertFile;
-    std::string m_tlsPrivKeyFile;
+struct homecontroller_config {
+    int m_server_port;
+    std::string m_tls_cert_file;
+    std::string m_tls_priv_key_file;
 
-    int m_maxHTTPConnections;
-    int m_maxWSConnections;
-    int m_maxDevices;
+    int m_connection_expire_time;
+    int m_session_expire_time;
 
-    int m_sessionExpireTime;
-
-    std::string m_logMode;
+    std::string m_log_mode;
 };
 
-class HomeController {
+class homecontroller {
     public:
-        HomeController();
-        ~HomeController();
+        homecontroller() 
+            : m_logger("main"), m_status(homecontroller_status::STOPPED)
+        {}
+
+        ~homecontroller() {}
 
         bool start();
         void loop();
         void shutdown();
 
-        AuthManager* getAuthManager() { return &m_authManager; }
-        UserManager* getUserManager() { return &m_userManager; }
-
-        DeviceManager* getDeviceManager() { return &m_deviceManager; }
-
-        WebSocketServer* getWSServer() { return &m_wsServer; }
-        DeviceServer* getDeviceServer() { return &m_deviceServer; }
-        
-        void signalInterrupt(int s);
-        void signalPipe(int s);
-        void signalSegv(int s);
+        void signal_interrupt(int s);
+        void signal_pipe(int s);
+        void signal_segv(int s);
 
     private:
-        Logger m_logger;
+        void on_connect(hc::net::ssl::tls_server::connection_hdl hdl);
+        void on_ready(hc::net::ssl::tls_server::connection_hdl hdl);
+        void on_disconnect(hc::net::ssl::tls_server::connection_hdl hdl);
 
-        AuthManager m_authManager;
-        UserManager m_userManager;
+        void run_session(hc::net::ssl::tls_server::connection_hdl hdl);
 
-        DeviceManager m_deviceManager;
+        hc::util::logger m_logger;
 
-        HTTPServer m_httpServer;
-        WebSocketServer m_wsServer;
-        DeviceServer m_deviceServer;
+        hc::net::ssl::tls_server m_server;
+        std::map<hc::net::ssl::tls_server::connection_hdl, std::unique_ptr<session>, std::owner_less<hc::net::ssl::tls_server::connection_hdl>> m_sessions;
 
-        HomeControllerStatus m_status;
+        hc::thread::thread_pool m_thread_pool;
+
+        homecontroller_status m_status;
 
         std::mutex m_mutex;
 };

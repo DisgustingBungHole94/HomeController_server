@@ -8,9 +8,9 @@ HTTPResponse Module::execute(const std::string& method, const std::vector<std::s
 }
 
 SessionPtr Module::getSession() {
-    if (SessionPtr sptr = m_session.lock()) {
-        return sptr;
+    if (m_session.expired()) {
+        throw hc::exception("Session deleted.", "Module::getSession");
     }
 
-    return nullptr;
+    return m_session.lock();
 }

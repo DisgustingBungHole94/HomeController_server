@@ -27,7 +27,7 @@ void WebSocketSession::run() {
     m_connectionPtr->set_message_handler(std::bind(&WebSocketSession::onMessage, this, std::placeholders::_1, std::placeholders::_2));
 
     m_connectionPtr->start();
-    
+
     m_running = true;
 
     m_connectionPtr->read_all(m_upgradeRequest.c_str(), m_upgradeRequest.length());
@@ -36,7 +36,7 @@ void WebSocketSession::run() {
         try {
             std::string data = m_tlsClient->recv();
             m_connectionPtr->read_all(data.c_str(), data.length());
-        } catch(GeneralException& e) {
+        } catch(hc::exception& e) {
             if (m_running) {
                 m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
 
@@ -74,7 +74,7 @@ std::error_code WebSocketSession::onVectorWrite(websocketpp::connection_hdl hdl,
 
     try {
         m_tlsClient->send(data);
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
 
         m_running = false;
@@ -92,7 +92,7 @@ std::error_code WebSocketSession::onWrite(websocketpp::connection_hdl hdl, const
 
     try {
         m_tlsClient->send(std::string(data, len));
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         m_logger.err("Client error: " + e.what() + " (" + e.func() + ")");
 
         m_running = false;
@@ -157,7 +157,7 @@ void WebSocketSession::onMessage(websocketpp::connection_hdl hdl, ws::server::me
             std::string deviceRes = getDevice()->getConnection()->sendMessage(message);
             sendMessage(hdl, deviceRes);
         }
-    } catch(GeneralException& e) {
+    } catch(hc::exception& e) {
         m_logger.err("Failed to communicate with device: " + e.what());
     }
 }
@@ -196,7 +196,7 @@ uint8_t WebSocketSession::registerDevice(const std::string& msg) {
 
 DevicePtr WebSocketSession::getDevice() {
     if (m_device.expired()) {
-        throw GeneralException("Device deleted.", "WebSocketSession::getDevice");
+        throw hc::exception("Device deleted.", "WebSocketSession::getDevice");
     }
 
     return m_device.lock();

@@ -1,6 +1,6 @@
 #include "timer.h"
 
-Timer::Timer(std::chrono::milliseconds duration)
+Timer::Timer(int duration)
     : m_duration(duration)
 {
     reset();

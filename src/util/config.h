@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 
-#include "exception/general_exception.h"
+#include <homecontroller/exception/exception.h>
 
 class ConfigValue {
     public:
@@ -25,7 +25,7 @@ class ConfigValue {
 
         const std::string& getString() {
             if (!m_isString) {
-                throw GeneralException("Variable " + m_name + " is not a string.", "ConfigValue::getString");
+                throw hc::exception("Variable " + m_name + " is not a string.", "ConfigValue::getString");
             }
 
             return m_str;
@@ -33,7 +33,7 @@ class ConfigValue {
 
         const int getInt() {
             if (!m_isInt) {
-                throw GeneralException("Variable " + m_name + " is not an integer.", "ConfigValue::getInt");
+                throw hc::exception("Variable " + m_name + " is not an integer.", "ConfigValue::getInt");
             }
 
             return m_int;

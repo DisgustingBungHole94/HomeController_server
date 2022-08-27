@@ -2,7 +2,7 @@
 
 #include "general_exception.h"
 
-class SocketCloseException : public GeneralException {
+class SocketCloseException : public hc::exception {
     public:
         SocketCloseException() {
             setErr("Socket closed!");
