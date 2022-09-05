@@ -15,16 +15,16 @@ bool homecontroller::start() {
 
         conf_file.load("./conf/homecontroller.conf");
 
-        controller_conf.m_server_port = conf_file["ServerPort"].getInt();
-        controller_conf.m_tls_cert_file = conf_file["TLSCertificateFile"].getString();
-        controller_conf.m_tls_priv_key_file = conf_file["TLSPrivateKeyFile"].getString();
+        controller_conf.m_server_port = conf_file["ServerPort"].get_int();
+        controller_conf.m_tls_cert_file = conf_file["TLSCertificateFile"].get_string();
+        controller_conf.m_tls_priv_key_file = conf_file["TLSPrivateKeyFile"].get_string();
 
-        controller_conf.m_connection_expire_time = conf_file["ConnectionExpireTime"].getInt();
-        controller_conf.m_session_expire_time = conf_file["SessionExpireTime"].getInt();
+        controller_conf.m_connection_expire_time = conf_file["ConnectionExpireTime"].get_int();
+        controller_conf.m_session_expire_time = conf_file["SessionExpireTime"].get_int();
 
-        controller_conf.m_log_mode = conf_file["LogMode"].getString();
+        controller_conf.m_log_mode = conf_file["LogMode"].get_string();
         if (controller_conf.m_log_mode == "debug") {
-            hc::util::logger::enableDebug();
+            hc::util::logger::enable_debug();
             m_logger.dbg("debug logging enabled.");
         } else if (controller_conf.m_log_mode != "normal") {
             throw hc::exception("unknown log mode specified.", "HomeController::init");
@@ -38,14 +38,8 @@ bool homecontroller::start() {
 
     try {
         // start tls server
-        m_server.set_connect_callback(std::bind(&homecontroller::on_connect, this, std::placeholders::_1));
-        m_server.set_data_callback(std::bind(&homecontroller::on_ready, this, std::placeholders::_1));
-        m_server.set_disconnect_callback(std::bind(&homecontroller::on_disconnect, this, std::placeholders::_1));
-
         m_server.init(controller_conf.m_server_port, controller_conf.m_tls_cert_file, controller_conf.m_tls_priv_key_file, controller_conf.m_connection_expire_time);
-        
-        int num_threads = std::thread::hardware_concurrency();
-        m_thread_pool.start((num_threads <= 0) ? 4 : num_threads);
+        m_server.start_threads();
     } catch(hc::exception& e) {
         m_logger.csh("failed to initialize: " + std::string(e.what()) + " (" + e.func() + ")");
         return false;
@@ -84,46 +78,7 @@ void homecontroller::shutdown() {
     m_status = homecontroller_status::STOPPED;
 
     m_server.stop();
-
-    m_thread_pool.stop();
-}
-
-void homecontroller::on_connect(hc::net::ssl::tls_server::connection_hdl hdl) {
-    std::unique_ptr<session> s = std::make_unique<session>();
-    
-    m_sessions.insert(std::make_pair(hdl, std::move(s)));
-}
-
-void homecontroller::on_ready(hc::net::ssl::tls_server::connection_hdl hdl) {
-    m_thread_pool.addJob(std::bind(&homecontroller::run_session, this, hdl));
-}
-
-void homecontroller::on_disconnect(hc::net::ssl::tls_server::connection_hdl hdl) {
-    auto mit = m_sessions.find(hdl);
-    if (mit == m_sessions.end()) {
-        m_logger.err("connection is not associated with a session!");
-        return;
-    }
-
-    m_sessions.erase(mit);
-}
-
-void homecontroller::run_session(hc::net::ssl::tls_server::connection_hdl hdl) {
-    auto mit = m_sessions.find(hdl);
-    if (mit == m_sessions.end()) {
-        m_logger.err("connection is not associated with a session!");
-        return;
-    }
-
-    try {
-        auto conn = hc::net::ssl::tls_server::conn_from_hdl(hdl);
-
-        if (!mit->second->onReady(conn)) {
-            conn->close();
-        }
-    } catch(hc::exception& e) {
-        m_logger.err("client error: " + std::string(e.what()) + " (" + std::string(e.func()) + ")");
-    }
+    m_server.stop_threads();
 }
 
 void homecontroller::signal_interrupt(int s) {

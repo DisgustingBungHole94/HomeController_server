@@ -1,11 +1,9 @@
 #pragma once
 
-#include "app/session.h"
+#include "net/hc_server.h"
 
 #include <homecontroller/util/logger.h>
-#include <homecontroller/net/ssl/tls_server.h>
 #include <homecontroller/exception/exception.h>
-#include <homecontroller/thread/thread_pool.h>
 
 #include <iostream>
 #include <memory>
@@ -43,20 +41,9 @@ class homecontroller {
         void signal_segv(int s);
 
     private:
-        void on_connect(hc::net::ssl::tls_server::connection_hdl hdl);
-        void on_ready(hc::net::ssl::tls_server::connection_hdl hdl);
-        void on_disconnect(hc::net::ssl::tls_server::connection_hdl hdl);
-
-        void run_session(hc::net::ssl::tls_server::connection_hdl hdl);
-
         hc::util::logger m_logger;
-
-        hc::net::ssl::tls_server m_server;
-        std::map<hc::net::ssl::tls_server::connection_hdl, std::unique_ptr<session>, std::owner_less<hc::net::ssl::tls_server::connection_hdl>> m_sessions;
-
-        hc::thread::thread_pool m_thread_pool;
 
         homecontroller_status m_status;
 
-        std::mutex m_mutex;
+        hc_server m_server;
 };

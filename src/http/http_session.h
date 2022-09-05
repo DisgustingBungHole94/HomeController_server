@@ -1,46 +1,24 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <map>
+#include "../app/session.h"
 
-#include "../thread/job.h"
-#include "http_response.h"
-#include "../util/logger.h"
-#include "../net/tls_server.h"
+#include <homecontroller/util/logger.h>
+#include <homecontroller/http/http_parser.h>
 
-class HomeController;
-
-class HTTPSession : public Job {
+class http_session : public session {
     public:
-        HTTPSession(HomeController* controller, std::unique_ptr<TLSClient> client);
-        ~HTTPSession();
+        http_session() 
+            : m_logger("http_session")
+        {}
+        
+        ~http_session() {}
 
-        void run();
-        void stop();
+        void init();
+        void on_data(const hc::net::ssl::connection_ptr& conn_ptr);
 
     private:
-        Logger m_logger;
+        hc::util::logger m_logger;
 
-        HomeController* m_controller;
-
-        std::unique_ptr<TLSClient> m_tlsClient;
-
-        HTTPResponse m_response;
-
-        struct ParserData {
-            std::string m_method = "";
-            std::string m_url = "";
-            std::string m_body = "";
-
-            std::string m_lastHeaderField = "";
-            std::map<std::string, std::string> m_headers;
-
-            bool m_finished = false;
-        };
-
-        void parseRequest();
-        void handleRequest(HTTPSession::ParserData* data);
-
-        bool m_sessionFinished;
+        hc::http::http_parser m_parser;
+        bool m_continue_parsing;
 };
