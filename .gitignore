@@ -5,3 +5,4 @@ lib
 pwm_test
 spec.txt
 tmp
+.DS_Store

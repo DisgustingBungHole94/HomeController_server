@@ -3,10 +3,6 @@ STRUCTURE = $(shell cd $(SRCDIR) && find . -type d)
 
 DEPSDIR = thirdparty
 
-INCLUDES += -I$(DEPSDIR)/websocketpp/
-INCLUDES += -I/usr/local/include/mongocxx/v_noabi
-INCLUDES += -I/usr/local/include/bsoncxx/v_noabi
-
 CXX ?= g++
 CXXFLAGS ?= -g $(INCLUDES)
 
@@ -18,7 +14,6 @@ TARGET = $(BINARYDIR)/homecontroller
 LIBS += -lllhttp
 LIBS += -lpthread
 LIBS += -lssl
-LIBS += -lcrypto
 LIBS += -lhomecontroller
 
 # src root
@@ -29,19 +24,27 @@ _OBJECTS += main.o
 
 # app
 
+_OBJECTS += app/handler.o
+_HEADERS += app/handler.h
+
 _OBJECTS += app/session.o
 _HEADERS += app/session.h
 
 # http
 
-_OBJECTS += http/http_session.o
-_HEADERS += http/http_session.h
+_OBJECTS += http/http_handler.o
+_HEADERS += http/http_handler.h
 
 # net
 
 _OBJECTS += net/hc_server.o
 _HEADERS += net/hc_server.h
  
+# ws
+
+_OBJECTS += ws/ws_handler.o
+_HEADERS += ws/ws_handler.h
+
 OBJECTS = $(patsubst %,$(OBJECTDIR)/%,$(_OBJECTS))
 HEADERS = $(patsubst %,$(SRCDIR)/%,$(_HEADERS))
 

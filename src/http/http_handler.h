@@ -1,20 +1,22 @@
 #pragma once
 
-#include "../app/session.h"
+#include "../net/handler.h"
 
 #include <homecontroller/util/logger.h>
 #include <homecontroller/http/http_parser.h>
 
-class http_session : public session {
+#include <iostream>
+
+class http_handler : public handler {
     public:
-        http_session() 
+        http_handler() 
             : m_logger("http_session")
         {}
         
-        ~http_session() {}
+        ~http_handler() {}
 
         void init();
-        void on_data(const hc::net::ssl::connection_ptr& conn_ptr);
+        void on_data(const hc::net::ssl::server_conn_ptr& conn_ptr, const std::string& data);
 
     private:
         hc::util::logger m_logger;

@@ -62,6 +62,8 @@ bool homecontroller::start() {
 }
 
 void homecontroller::loop() {
+    std::string current_cmd;
+
     while(m_status == homecontroller_status::RUNNING) {
         
     }
