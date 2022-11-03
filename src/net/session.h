@@ -6,8 +6,8 @@
 
 class session {
     public:
-        session(hc::net::ssl::server_conn_hdl conn_hdl, handler_type type) 
-            : m_conn_hdl(conn_hdl)
+        session(homecontroller* controller, hc::net::ssl::server_conn_hdl conn_hdl, handler_type type) 
+            : m_controller(controller), m_conn_hdl(conn_hdl)
         {
             set_type(type);
         }
@@ -20,6 +20,8 @@ class session {
         handler_type get_type() { return m_type; }
 
     private:
+        homecontroller* m_controller;
+
         std::unique_ptr<handler> m_handler;
         handler_type m_type;
 

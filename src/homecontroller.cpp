@@ -1,12 +1,13 @@
 #include "homecontroller.h"
 
+#include <homecontroller/util/logger.h>
 #include <homecontroller/exception/exception.h>
 #include <homecontroller/util/config.h>
 
 #include <thread>
 
 bool homecontroller::start() {
-    m_logger.log("homecontroller v2 by Josh Dittmer. initializing...");
+    hc::util::logger::log("homecontroller v2 by Josh Dittmer. initializing...");
 
     homecontroller_config controller_conf;
 
@@ -25,14 +26,14 @@ bool homecontroller::start() {
         controller_conf.m_log_mode = conf_file["LogMode"].get_string();
         if (controller_conf.m_log_mode == "debug") {
             hc::util::logger::enable_debug();
-            m_logger.dbg("debug logging enabled.");
+            hc::util::logger::dbg("debug logging enabled.");
         } else if (controller_conf.m_log_mode != "normal") {
             throw hc::exception("unknown log mode specified.", "HomeController::init");
         }
 
-        m_logger.log("configuration file loaded");
+        hc::util::logger::log("configuration file loaded");
     } catch (hc::exception& e) {
-        m_logger.csh("failed to load configuration: " + std::string(e.what()));
+        hc::util::logger::csh("failed to load configuration: " + std::string(e.what()));
         return false;
     }
 
@@ -40,8 +41,11 @@ bool homecontroller::start() {
         // start tls server
         m_server.init(controller_conf.m_server_port, controller_conf.m_tls_cert_file, controller_conf.m_tls_priv_key_file, controller_conf.m_connection_expire_time);
         m_server.start_threads();
+
+        // load users
+        m_user_manager.load_users();
     } catch(hc::exception& e) {
-        m_logger.csh("failed to initialize: " + std::string(e.what()) + " (" + e.func() + ")");
+        hc::util::logger::csh("failed to initialize: " + std::string(e.what()) + " (" + e.func() + ")");
         return false;
     }
 
@@ -50,7 +54,7 @@ bool homecontroller::start() {
     // start http server thread
     std::thread server_thread(&hc::net::ssl::tls_server::run, &m_server);
 
-    m_logger.log("initialization finished");
+    hc::util::logger::log("initialization finished");
 
     // start main loop, will exit on Ctrl-C
     loop();
@@ -71,11 +75,11 @@ void homecontroller::loop() {
 
 void homecontroller::shutdown() {
     if (m_status != homecontroller_status::RUNNING) {
-        m_logger.err("early shutdown detected, please wait until initialized");
+        hc::util::logger::err("early shutdown detected, please wait until initialized");
         return;
     }
 
-    m_logger.log("shutting down...");
+    hc::util::logger::log("shutting down...");
 
     m_status = homecontroller_status::STOPPED;
 
@@ -84,16 +88,16 @@ void homecontroller::shutdown() {
 }
 
 void homecontroller::signal_interrupt(int s) {
-    m_logger.dbg("received interrupt from user");
+    hc::util::logger::dbg("received interrupt from user");
     shutdown();
 }
 
 void homecontroller::signal_pipe(int s) {
-    m_logger.err("received signal SIGPIPE");
+    hc::util::logger::err("received signal SIGPIPE");
 }
 
 void homecontroller::signal_segv(int s) {
-    m_logger.csh("*** SEGMENTATION FAULT! ***");
-    m_logger.csh("homecontroller has encountered a critical error and must exit");
+    hc::util::logger::csh("*** SEGMENTATION FAULT! ***");
+    hc::util::logger::csh("homecontroller has encountered a critical error and must exit");
     exit(-1);
 }

@@ -7,7 +7,10 @@
 
 class ws_handler : public handler {
     public:
-        ws_handler() {}
+        ws_handler(homecontroller* controller) 
+            : handler(controller)
+        {}
+        
         ~ws_handler() {}
 
         void init(const hc::net::ssl::server_conn_hdl& conn_hdl, const std::string& upgrade_request);

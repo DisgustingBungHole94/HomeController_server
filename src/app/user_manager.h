@@ -8,10 +8,9 @@ class homecontroller;
 
 class user_manager {
     public:
-        user_manager(homecontroller* controller)
-            : m_controller(controller)
+        user_manager(homecontroller* controller) 
+            : m_controller(controller)    
         {}
-
         ~user_manager() {}
 
         void load_users();

@@ -24,7 +24,7 @@ void session::set_type(handler_type type) {
     switch(type) {
         case handler_type::HTTP:
             {
-                http_handler* h = new http_handler();
+                http_handler* h = new http_handler(m_controller);
                 h->init();
 
                 m_handler.reset(h);
@@ -32,7 +32,7 @@ void session::set_type(handler_type type) {
             break;
         case handler_type::WS:
             {
-                ws_handler* h = new ws_handler();
+                ws_handler* h = new ws_handler(m_controller);
                 h->init(m_conn_hdl, m_handler->get_upgrade_request());
 
                 m_handler.reset(h);
@@ -42,7 +42,7 @@ void session::set_type(handler_type type) {
             break;
         case handler_type::NONE:
         default:
-            m_handler.reset(new handler());
+            m_handler.reset(new handler(m_controller));
             break;
     }
 }

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "app/user_manager.h"
+#include "app/auth_manager.h"
+
 #include "net/hc_server.h"
 
-#include <homecontroller/util/logger.h>
 #include <homecontroller/exception/exception.h>
 
 #include <iostream>
@@ -27,7 +29,10 @@ struct homecontroller_config {
 class homecontroller {
     public:
         homecontroller() 
-            : m_logger("main"), m_status(homecontroller_status::STOPPED)
+            : m_status(homecontroller_status::STOPPED),
+            m_server(this),
+            m_auth_manager(this),
+            m_user_manager(this)
         {}
 
         ~homecontroller() {}
@@ -40,10 +45,14 @@ class homecontroller {
         void signal_pipe(int s);
         void signal_segv(int s);
 
-    private:
-        hc::util::logger m_logger;
+        user_manager* get_user_manager() { return &m_user_manager; }
+        auth_manager* get_auth_manager() { return &m_auth_manager; }
 
+    private:
         homecontroller_status m_status;
 
         hc_server m_server;
+
+        user_manager m_user_manager;
+        auth_manager m_auth_manager;
 };

@@ -6,10 +6,12 @@ enum class handler_type {
     NONE, HTTP, WS, DEVICE
 };
 
+class homecontroller;
+
 class handler {
     public:
-        handler() 
-            : m_finished(false), m_upgrade_type(handler_type::NONE)
+        handler(homecontroller* controller) 
+            : m_controller(controller), m_finished(false), m_upgrade_type(handler_type::NONE)
         {}
 
         ~handler() {}
@@ -24,6 +26,9 @@ class handler {
 
         void set_upgrade_request(const std::string& request) { m_upgrade_request = request; }
         const std::string& get_upgrade_request() { return m_upgrade_request; }
+
+    protected:
+        homecontroller* m_controller;
 
     private:
         bool m_finished;

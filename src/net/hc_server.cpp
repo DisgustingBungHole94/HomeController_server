@@ -1,6 +1,7 @@
 #include "hc_server.h"
 
 #include <homecontroller/exception/exception.h>
+#include <homecontroller/util/logger.h>
 
 #include <iostream>
 
@@ -13,14 +14,14 @@ void hc_server::stop_threads() {
 }
 
 void hc_server::on_connect(hc::net::ssl::server_conn_hdl conn_hdl) {
-    std::shared_ptr<session> s = std::make_shared<session>(conn_hdl, handler_type::HTTP);    
+    std::shared_ptr<session> s = std::make_shared<session>(m_controller, conn_hdl, handler_type::HTTP);    
     m_sessions.insert(std::make_pair(conn_hdl, s));
 }
 
 void hc_server::on_data(hc::net::ssl::server_conn_hdl conn_hdl) {
     auto mit = m_sessions.find(conn_hdl);
     if (mit == m_sessions.end()) {
-        m_logger.err("on_data error: connection is not associated with session");
+        hc::util::logger::err("on_data error: connection is not associated with session");
         return;
     }
     
@@ -31,7 +32,7 @@ void hc_server::on_data(hc::net::ssl::server_conn_hdl conn_hdl) {
         conn_ptr = hc::net::ssl::server_connection::conn_from_hdl(conn_hdl);
         data = conn_ptr->recv();
     } catch(hc::exception& e) {
-        m_logger.err("on_data error: " + std::string(e.what()) + " (" + std::string(e.func()) + ")");
+        hc::util::logger::err("on_data error: " + std::string(e.what()) + " (" + std::string(e.func()) + ")");
         return;
     }
 
@@ -44,7 +45,7 @@ void hc_server::on_data(hc::net::ssl::server_conn_hdl conn_hdl) {
 void hc_server::on_disconnect(hc::net::ssl::server_conn_hdl conn_hdl) {
     auto mit = m_sessions.find(conn_hdl);
     if (mit == m_sessions.end()) {
-        m_logger.err("disconnect error: connection is not associated with session");
+        hc::util::logger::err("disconnect error: connection is not associated with session");
         return;
     }
 
@@ -55,6 +56,6 @@ void hc_server::worker_thread(std::shared_ptr<session> session, const std::strin
     try {
         session->on_data(data);
     } catch(hc::exception& e) {
-        m_logger.err("client error: " + std::string(e.what()) + " (" + std::string(e.func()) + ")");
+        hc::util::logger::err("client error: " + std::string(e.what()) + " (" + std::string(e.func()) + ")");
     }
 }

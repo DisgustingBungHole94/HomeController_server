@@ -24,11 +24,24 @@ _OBJECTS += main.o
 
 # app
 
-_OBJECTS += app/handler.o
-_HEADERS += app/handler.h
+_OBJECTS += app/auth_manager.o
+_HEADERS += app/auth_manager.h
 
-_OBJECTS += app/session.o
-_HEADERS += app/session.h
+_OBJECTS += app/user_manager.o
+_HEADERS += app/user_manager.h
+
+# http/modules
+_OBJECTS += http/modules/login_module.o
+_HEADERS += http/modules/login_module.h
+
+_OBJECTS += http/modules/logout_module.o
+_HEADERS += http/modules/logout_module.h
+
+_OBJECTS += http/modules/module.o
+_HEADERS += http/modules/module.h
+
+_OBJECTS += http/modules/register_device_module.o
+_HEADERS += http/modules/register_device_module.h
 
 # http
 
@@ -37,9 +50,15 @@ _HEADERS += http/http_handler.h
 
 # net
 
+_OBJECTS += net/handler.o
+_HEADERS += net/handler.h
+
 _OBJECTS += net/hc_server.o
 _HEADERS += net/hc_server.h
- 
+
+_OBJECTS += net/session.o
+_HEADERS += net/session.h
+
 # ws
 
 _OBJECTS += ws/ws_handler.o

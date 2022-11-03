@@ -6,18 +6,24 @@
 
 class homecontroller;
 
+enum class auth_result {
+    OK, NO_USER, INC_PASS
+};
+
 class auth_manager {
     public:
-        auth_manager(homecontroller* controller)
+        auth_manager(homecontroller* controller) 
             : m_controller(controller)
         {}
 
         ~auth_manager() {}
 
-        std::string create_session(const std::string& username, const std::string& password, const std::string& ip);
+        auth_result create_session(const std::string& username, const std::string& password, const std::string& ip, std::string& session_id_ref);
 
-        void delete_session(const std::string& id);
+        bool delete_session(const std::string& id);
         void delete_sessions_by_username(const std::string& username);
+
+        std::shared_ptr<hc::session> get_session(const std::string& id);
 
     private:
         homecontroller* m_controller;

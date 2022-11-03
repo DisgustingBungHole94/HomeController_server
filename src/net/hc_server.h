@@ -4,12 +4,11 @@
 
 #include <homecontroller/net/ssl/tls_server.h>
 #include <homecontroller/thread/thread_pool.h>
-#include <homecontroller/util/logger.h>
 
 class hc_server : public hc::net::ssl::tls_server {
     public:
-        hc_server()
-            : m_logger("hc_server") 
+        hc_server(homecontroller* controller)
+            : m_controller(controller) 
         {}
 
         ~hc_server() {}
@@ -24,7 +23,7 @@ class hc_server : public hc::net::ssl::tls_server {
     private:
         void worker_thread(std::shared_ptr<session> session, const std::string data);
 
-        hc::util::logger m_logger;
+        homecontroller* m_controller;
 
         hc::thread::thread_pool m_thread_pool;
 
